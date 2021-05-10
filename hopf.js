@@ -22,10 +22,11 @@ this.sphere.position.x=-10;
 this.sphere.position.y=-6;
 this.sphere.position.z=-6;
 
-const material2 = new THREE.LineBasicMaterial( {
-	color: 0xffffff,
-	linewidth: 3,
-} );
+//material for a line
+// const material2 = new THREE.LineBasicMaterial( {
+// 	color: 0xffffff,
+// 	linewidth: 3,
+// } );
 
 
 //to make a line start with an empty array and add the lines endpoints 
@@ -35,7 +36,7 @@ const material2 = new THREE.LineBasicMaterial( {
 //const geometry2 = new THREE.BufferGeometry().setFromPoints( points );
 //const line = new THREE.Line( geometry2, material2);
 
-const planeGeometry = new THREE.PlaneGeometry( 6, 6, 32 );
+const planeGeometry = new THREE.PlaneGeometry( 6, 6, 32 ); //plane to intersect sphere
 const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
 const plane = new THREE.Mesh( planeGeometry, planeMaterial );
 this.plane = plane;
@@ -43,9 +44,20 @@ this.plane.position.x = -10;
 this.plane.position.y = -6;
 this.plane.position.z = -6;
 
+//points on intersection of line and sphere
+const pointGeometry = new THREE.SphereGeometry(0.15,32,32);
+const pointMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000, opacity:0.84, transparent: true} );
+const point = new THREE.Mesh(pointGeometry, pointMaterial);
+point.position.set(-10,-4,-6);
+
+pivot = new THREE.Group();
+pivot.position.set(-10,-6,-6);
+point.add(pivot);
+pivot.add(point);
 
 
-scene.add( sphere, plane);
+
+scene.add( sphere, plane, point);
 //scene.add(sphere);
 camera.position.z = 10;
 
@@ -58,6 +70,8 @@ const animate = function () {
 
     plane.rotation.x += 0.01;
     plane.rotation.y += 0.01;
+    pivot.rotation.x += 0.01;
+    pivot.rotation.y += 0.01;
 
     renderer.render( scene, camera );
 };
