@@ -17,10 +17,9 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 const geometry = new THREE.SphereGeometry(  2,32,32 );
 const material = new THREE.MeshBasicMaterial( {color: 0x49ef4, opacity:0.64, transparent: true} );
 const sphere = new THREE.Mesh( geometry, material );
-this.sphere = sphere;
-this.sphere.position.x=-10;
-this.sphere.position.y=-6;
-this.sphere.position.z=-6;
+
+
+scene.add( sphere);
 
 //material for a line
 // const material2 = new THREE.LineBasicMaterial( {
@@ -39,27 +38,48 @@ this.sphere.position.z=-6;
 const planeGeometry = new THREE.PlaneGeometry( 6, 6, 32 ); //plane to intersect sphere
 const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
 const plane = new THREE.Mesh( planeGeometry, planeMaterial );
-this.plane = plane;
-this.plane.position.x = -10;
-this.plane.position.y = -6;
-this.plane.position.z = -6;
+plane.rotation.set(0,0,0);
 
 //points on intersection of line and sphere
-const pointGeometry = new THREE.SphereGeometry(0.15,32,32);
+const pointGeometry = new THREE.SphereGeometry(0.1,32,32);
 const pointMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000, opacity:0.84, transparent: true} );
-const point = new THREE.Mesh(pointGeometry, pointMaterial);
-point.position.set(-10,-4,-6);
 
-pivot = new THREE.Group();
-pivot.position.set(-10,-6,-6);
-point.add(pivot);
-pivot.add(point);
+//create a parent object to rotate all points and plane simulatenously
+const rotations = new THREE.Object3D();
+scene.add( rotations );
+
+// rotations.add( plane );
+
+for (i = 0; i < 10; i++){
+    addPoint(i);
+}
+function addPoint(j){
+    var sphere2add = new THREE.Mesh(pointGeometry, pointMaterial);
+    sphere2add.position.x = 0.02 + 2*Math.cos( 2 * Math.PI*j/10 );
+    sphere2add.position.y = 0.02 + 2*Math.sin( 2 *Math.PI*j/10 );
+    sphere2add.rotation.set(0,0,0);
+    rotations.add(sphere2add);
+}
+
+// var fiberBasePoints = [];
+// for (i=0; 1<10 ; i++){
+//     var fiberBasePoint = new THREE.Quaternion(0, Math.sqrt(2)*Math.cos( 2 * Math.PI*i/10 ), Math.sqrt(2)*Math.sin( 2 *Math.PI*i/10 ),0);
+//     fiberBasePoints.push(fiberBasePoint);
+// }
+
+
+//pivot groups together for rotation
+var pivot = new THREE.Group();
+scene.add(pivot);
 
 
 
-scene.add( sphere, plane, point);
+pivot.add( rotations );
 //scene.add(sphere);
-camera.position.z = 10;
+camera.position.z = 12;
+camera.position.x = 6;
+camera.position.y = 5;
+
 
 
 //move things around using animate
@@ -68,10 +88,12 @@ const animate = function () {
     // controls.update();
 
 
-    plane.rotation.x += 0.01;
-    plane.rotation.y += 0.01;
-    pivot.rotation.x += 0.01;
+    pivot.rotation.z += 0.01;
     pivot.rotation.y += 0.01;
+
+   
+    //rotations.rotation.y += 0.01;
+
 
     renderer.render( scene, camera );
 };
