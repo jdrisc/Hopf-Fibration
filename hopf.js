@@ -61,11 +61,30 @@ function addPoint(j){
     rotations.add(sphere2add);
 }
 
-// var fiberBasePoints = [];
-// for (i=0; 1<10 ; i++){
-//     var fiberBasePoint = new THREE.Quaternion(0, Math.sqrt(2)*Math.cos( 2 * Math.PI*i/10 ), Math.sqrt(2)*Math.sin( 2 *Math.PI*i/10 ),0);
-//     fiberBasePoints.push(fiberBasePoint);
-// }
+var fiberBasePoints = [];//pick a point in each fiber before multiplying by U(1)
+for (i=0; i<10 ; i++){
+    fiberBasePoints.push( new THREE.Quaternion(0, Math.sqrt(2)*Math.cos( 2 * Math.PI*i/10 ), Math.sqrt(2)*Math.sin( 2 *Math.PI*i/10 ),0));
+}
+
+var fibers = []; //an array of points in the fibers over each point on S2
+for (i=0; i<10 ; i++){
+    for (j=0; j<100 ; j++){
+        var quat = fiberBasePoints[i];
+        var mult = new THREE.Quaternion(Math.cos( 2*Math.PI*j/100),0,0,Math.sin(Math.PI*j/100));
+        fibers.push(quat.multiply(mult));
+    }
+}
+
+var projection = []; //stereographically project points and normalise
+for (i=0 ; i<1000; i++){
+    var quat = fibers[i];
+    var unnormalised = new THREE.Vector3(1/(1-quat.w)*quat.x, 1/(1-quat.w)*quat.y , 1/(1-quat.w)*quat.z);
+    var norm = unnormalised.length();
+    projection.push( unnormalised.multiplyScalar(Math.atan(norm)) );  
+}
+
+
+
 
 
 //pivot groups together for rotation
