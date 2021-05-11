@@ -40,7 +40,7 @@ const planeMaterial = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE
 const plane = new THREE.Mesh( planeGeometry, planeMaterial );
 plane.rotation.set(0,0,0);
 
-//points on intersection of line and sphere
+//base points on sphere
 const pointGeometry = new THREE.SphereGeometry(0.1,32,32);
 const pointMaterial = new THREE.MeshBasicMaterial( {color: 0xff0000, opacity:0.84, transparent: true} );
 
@@ -49,7 +49,7 @@ const rotations = new THREE.Object3D();
 scene.add( rotations );
 
 // rotations.add( plane );
-
+let i;
 for (i = 0; i < 10; i++){
     addPoint(i);
 }
@@ -61,29 +61,48 @@ function addPoint(j){
     rotations.add(sphere2add);
 }
 
-var fiberBasePoints = [];//pick a point in each fiber before multiplying by U(1)
-for (i=0; i<10 ; i++){
-    fiberBasePoints.push( new THREE.Quaternion(0, Math.sqrt(2)*Math.cos( 2 * Math.PI*i/10 ), Math.sqrt(2)*Math.sin( 2 *Math.PI*i/10 ),0));
-}
-
+let j;
+let k;
 var fibers = []; //an array of points in the fibers over each point on S2
-for (i=0; i<10 ; i++){
+for (k=0; k<10 ; k++){
     for (j=0; j<100 ; j++){
-        var quat = fiberBasePoints[i];
-        var mult = new THREE.Quaternion(Math.cos( 2*Math.PI*j/100),0,0,Math.sin(Math.PI*j/100));
-        fibers.push(quat.multiply(mult));
+        let quat = new THREE.Quaternion(0, Math.cos( 2 * Math.PI*k/10 ), Math.sin( 2 *Math.PI*k/10 ),1);
+        let mult = new THREE.Quaternion(Math.cos( 2*Math.PI*j/100),0,0,Math.sin(Math.PI*j/100));
+        let fiberPoint = quat.multiply(mult);
+        fibers.push(fiberPoint);
     }
 }
+console.log(fibers);
 
 var projection = []; //stereographically project points and normalise
 for (i=0 ; i<1000; i++){
-    var quat = fibers[i];
-    var unnormalised = new THREE.Vector3(1/(1-quat.w)*quat.x, 1/(1-quat.w)*quat.y , 1/(1-quat.w)*quat.z);
-    var norm = unnormalised.length();
-    projection.push( unnormalised.multiplyScalar(Math.atan(norm)) );  
+    let quat = fibers[i];
+    let unnormalised = new THREE.Vector3(maxScale(1/(1-quat.w))*quat.x, maxScale(1/(1-quat.w))*quat.y , maxScale(1/(1-quat.w))*quat.z);
+    let norm = maxScale(unnormalised.length());
+    let normalised = unnormalised.multiplyScalar(1/norm);
+    projection.push( normalised.multiplyScalar(Math.atan(norm)) );  
 }
 
 
+function maxScale(x){
+    if (x == Infinity){
+        return Math.pow(10,10);
+    } else {
+        return x;
+    }
+}
+
+console.log(projection);
+
+
+const material2 = new THREE.LineBasicMaterial( {
+	color: 0xffffff,
+	linewidth: 3,
+} );
+const geometry2 = new THREE.BufferGeometry().setFromPoints( projection );
+const line = new THREE.Line( geometry2, material2);
+line.position.set(6,6,6);
+scene.add(line);
 
 
 
@@ -107,11 +126,9 @@ const animate = function () {
     // controls.update();
 
 
-    pivot.rotation.z += 0.01;
-    pivot.rotation.y += 0.01;
+    // pivot.rotation.z += 0.01;
+    // pivot.rotation.y += 0.01;
 
-   
-    //rotations.rotation.y += 0.01;
 
 
     renderer.render( scene, camera );
