@@ -8,19 +8,12 @@ const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.inner
 
 // const controls = new OrbitControls( camera, renderer.domElement );
 
-// const renderer = new THREE.WebGLRenderer();
-// renderer.setSize( window.innerWidth, window.innerHeight );
-// document.body.appendChild( renderer.domElement );
-
-//setup the geometry
-
-const geometry = new THREE.SphereGeometry(  2,32,32 );
+//setup the sphere:
+const geometry = new THREE.SphereGeometry(  1,32,32 );
 const material = new THREE.MeshBasicMaterial( {color: 0x49ef4, opacity:0.64, transparent: true} );
 const sphere = new THREE.Mesh( geometry, material );
 
-
 scene.add( sphere);
-
 
 //base points on sphere
 const pointGeometry = new THREE.SphereGeometry(0.1,32,32);
@@ -37,15 +30,15 @@ for (i = 0; i < 10; i++){
 }
 function addPoint(j){
     var sphere2add = new THREE.Mesh(pointGeometry, pointMaterial);
-    sphere2add.position.x = 0.02 + 2*Math.cos( 2 * Math.PI*j/10 );
-    sphere2add.position.y = 0.02 + 2*Math.sin( 2 *Math.PI*j/10 );
+    sphere2add.position.x = Math.cos( 2 * Math.PI*j/10 );
+    sphere2add.position.y = Math.sin( 2 *Math.PI*j/10 );
     sphere2add.rotation.set(0,0,0);
     rotations.add(sphere2add);
 }
 //pivot groups together for rotation
 var pivot = new THREE.Group();
 scene.add(pivot);
-pivot.add( rotations );
+
 
 var fibers = []; //an array to contain 10 arrays- each containing points tracing out a fiber
 rotations.children.forEach(element => addFiber(element));
@@ -54,22 +47,22 @@ function addFiber(point){
     //takes a point on S2 and adds an array of 100 points in fiber over that point to the fibers array 
     let singleFiber = [];
     let j;
-    for (j=0; j<100 ; j++){
-        let quat = new THREE.Quaternion(0,point.position.x , point.position.y,1 + point.position.z);
+    for (j=0; j<101 ; j++){
+        let quat = new THREE.Quaternion(0, point.position.x , point.position.y, 1 + point.position.z);
         quat.multiply(  new THREE.Quaternion(1/Math.sqrt(2*(1+point.position.z)),0,0,0)  );
-        let mult = new THREE.Quaternion(Math.cos( 2*Math.PI*j/100),0,0,Math.sin(Math.PI*j/100));
+        let mult = new THREE.Quaternion(Math.cos( 2*Math.PI*j/100),0,0,Math.sin(2*Math.PI*j/100));
         let fiberPoint = quat.multiply(mult);
         singleFiber.push(fiberPoint);
     }
     fibers.push(singleFiber);
 }
 
+
+
 var plot = new THREE.Group();
 plot.position.set(6,6,6);
 //for each array in fibers, project each of its point into an array, form a line, add to group
 fibers.forEach(element => stereoProjFiber(element));
-
-
 
 
 
@@ -83,7 +76,7 @@ function stereoProjFiber(fib){
     });
     const material2 = new THREE.LineBasicMaterial( {
         color: 0xffffff,
-        linewidth: 3,
+        linewidth: 10,
     } );
     const geometry2 = new THREE.BufferGeometry().setFromPoints( projFib );
     let fibPlot = new THREE.Line(geometry2, material2);
@@ -98,7 +91,6 @@ function maxScale(x){
         return x;
     }
 }
-
 
 scene.add(plot);
 
@@ -115,8 +107,8 @@ const animate = function () {
     // controls.update();
 
 
-    // pivot.rotation.z += 0.01;
-    // pivot.rotation.y += 0.01;
+    rotations.rotation.z += 0.01;
+    rotations.rotation.y += 0.01;
 
 
 
