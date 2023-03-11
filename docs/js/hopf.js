@@ -1,5 +1,5 @@
-import \* as THREE from './vendor/three/build/three.module.js';
-import { OrbitControls } from "./vendor/three/examples/jsm/controls/OrbitControls.js";
+import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js";
 
 
 const renderer = new THREE.WebGLRenderer();
