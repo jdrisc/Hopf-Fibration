@@ -157,7 +157,7 @@ camera.position.z = 7;
 // camera.position.x = 6;
 // camera.position.y = 6;
 
-const controls = new THREE.OrbitControls( camera, renderer.domElement );
+const controls = new OrbitControls( camera, renderer.domElement );
 controls.update();
 
 
